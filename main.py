@@ -5,6 +5,7 @@ from colordetection import extractSkin, extractDominantColor, adjust_hsv_dominan
 from transfer import applyAdjustedColorToSkinRegion,blendSkinWithTexture
 import torch
 import uvicorn
+from fastapi.middleware.cors import CORSMiddleware
 import io
 import numpy as np
 from PIL import Image
@@ -15,6 +16,13 @@ app = FastAPI(debug= True)
 modelweight = 'model_segmentation_realtime_skin_30.pth'
 model = load_skin_segmentation_model(modelweight)
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Adjust as needed
+    allow_credentials=True,
+    allow_methods=["*"],  # Adjust as needed
+    allow_headers=["*"],  # Adjust as needed
+)
 # Model loading and function definitions will go here
 @app.get('/')
 def home():
