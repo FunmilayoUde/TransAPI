@@ -40,7 +40,18 @@ async def create_mask(image: UploadFile = File(...)):
 
     # Return mask as bytes (adjust format if needed)
     mask_bytes = mask.tobytes()
-    return Response(content=mask_bytes, media_type="image/png")
+    resized_image_bytes = cv2.imencode(".jpg", resized_image)[1].tobytes() 
+     # Create a response with both image bytes
+    response = Response(
+        content=b"".join([mask_bytes, resized_image_bytes]),  # Combine bytes
+        media_type="multipart/form-data"  # Indicate multiple parts
+    )
+
+    # Set appropriate content-disposition headers for each image
+    response.headers["Content-Disposition"] = f"attachment; filename=mask.png"
+    response.headers.append("Content-Disposition", f"attachment; filename=resized.jpg")
+
+    return response
 
 @app.post("/refinemask")
 async def refine_mask(image: UploadFile = File(...), mask: UploadFile = File(...)):
